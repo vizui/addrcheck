@@ -1,6 +1,6 @@
 (function(){
 	
-	var Coords = {},
+	var Coords = {}, finalCoords = {},
 			GMap = {};
 	
 	GMap = {		
@@ -12,7 +12,9 @@
 		
 			GMap.map = new google.maps.Map(mapContainer, {
 				disableDefaultUI: true,
-				zoom: 11,
+				zoom: 17,
+				zoomControl:true,
+				 mapTypeControl: true,
 				center: new google.maps.LatLng(Coords.lat, Coords.long),
 				mapTypeId: google.maps.MapTypeId.ROADMAP
 			});	
@@ -34,8 +36,16 @@
 			GMap.marker = new google.maps.Marker({
 				map: GMap.map,
 				position: new google.maps.LatLng(latitude, longitude),	
+				draggable:true,
 				title: (label || "")
 			});
+
+			google.maps.event.addListener(GMap.marker, 'dragend', function(evt) { 
+				  
+				  finalCoords.lat = evt.latLng.Ya;
+				  finalCoords.long = evt.latLng.Za;
+				  GMap.updateLocation();
+			 });
 			 
 			//return( marker );
 		},
@@ -92,10 +102,20 @@
 							Coords.long,
 							"Initial Position"
 						);
+					finalCoords={};
+					GMap.updateLocation();
 					
 				}
 			});
-		} // End GMap.geocode_zip
+		}, // End GMap.geocode_zip
+
+		updateLocation: function(){
+			var locInfo = "Geocoded Coord: (" + Coords.lat + "," +  Coords.long + ") "; 
+			if (typeof finalCoords.lat != "undefined"){
+				locInfo += "<br>current Coord: (" + finalCoords.lat + "," +  finalCoords.long + ")"; 
+			}
+			$("#locInfo").html(locInfo);
+		}
 	} // End GMap
 	
 	Coords = {
